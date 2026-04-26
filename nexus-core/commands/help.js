@@ -1,8 +1,11 @@
 const { embed } = require("../utils/embed");
+const { auth } = require("../middleware/auth");
 
 module.exports = {
   name: "help",
+
   execute(message) {
+    if (!auth("help")(message)) return;
 
     const e = embed("NEXUS CORE")
       .setDescription("Commands")
