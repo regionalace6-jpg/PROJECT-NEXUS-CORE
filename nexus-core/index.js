@@ -1,74 +1,83 @@
 const { Client, GatewayIntentBits, Collection } = require("discord.js");
 const fs = require("fs");
+const path = require("path");
 
-const { initDB } = require("./services/database");
-const { track } = require("./services/activityService");
+require("dotenv").config();
 
+// ===== CLIENT SETUP =====
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
 });
 
 client.commands = new Collection();
-const PREFIX = ".";
 
-// load commands
-const commandFiles = fs.readdirSync("./commands").filter(f => f.endsWith(".js"));
+// ===== LOAD COMMANDS (FIXED PATH) =====
+const commandsPath = path.join(__dirname, "commands");
 
-for (const file of commandFiles) {
-  const command = require(`./commands/${file}`);
-  client.commands.set(command.name, command);
+if (!fs.existsSync(commandsPath)) {
+    console.error("❌ Commands folder not found at:", commandsPath);
+} else {
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith(".js"));
+
+    for (const file of commandFiles) {
+        const filePath = path.join(commandsPath, file);
+        const command = require(filePath);
+
+        if (command.name) {
+            client.commands.set(command.name, command);
+        } else {
+            console.warn(`⚠️ Command missing name: ${file}`);
+        }
+    }
+
+    console.log(`✅ Loaded ${client.commands.size} commands`);
 }
 
-client.once("ready", async () => {
-  console.log(`NEXUS CORE ONLINE: ${client.user.tag}`);
-  await initDB();
+// ===== READY EVENT =====
+client.once("ready", () => {
+    console.log(`🔥 Bot is ONLINE as ${client.user.tag}`);
 });
 
-// auto setup channels
-client.on("guildCreate", async (guild) => {
-  try {
-    const category = await guild.channels.create({
-      name: "NEXUS CORE",
-      type: 4
-    });
-
-    const channels = ["nexus-commands", "nexus-logs", "nexus-alerts"];
-
-    for (const ch of channels) {
-      await guild.channels.create({
-        name: ch,
-        type: 0,
-        parent: category.id
-      });
-    }
-  } catch (err) {
-    console.log(err.message);
-  }
-});
-
+// ===== MESSAGE HANDLER =====
 client.on("messageCreate", async (message) => {
-  if (message.author.bot) return;
+    if (message.author.bot) return;
 
-  await track(message.author, message.guild?.id || "dm");
+    const prefix = ".";
 
-  if (!message.content.startsWith(PREFIX)) return;
+    if (!message.content.startsWith(prefix)) return;
 
-  const args = message.content.slice(PREFIX.length).trim().split(/ +/);
-  const cmd = args.shift().toLowerCase();
+    const args = message.content.slice(prefix.length).trim().split(/ +/);
+    const commandName = args.shift().toLowerCase();
 
-  const command = client.commands.get(cmd);
-  if (!command) return;
+    const command = client.commands.get(commandName);
 
-  try {
-    await command.execute(message, args);
-  } catch (err) {
-    console.error(err);
-    message.reply("Error executing command.");
-  }
+    if (!command) return;
+
+    try {
+        await command.execute(message, args);
+    } catch (error) {
+        console.error(error);
+        message.reply("❌ Error executing command.");
+    }
 });
 
-client.login(process.env.TOKEN);
+// ===== AUTO CHANNEL CREATION (WHEN BOT JOINS SERVER) =====
+client.on("guildCreate", async (guild) => {
+    try {
+        const channel = await guild.channels.create({
+            name: "nexus-logs",
+            type: 0
+        });
+
+        channel.send("Nexus Core connected. Logging initialized.");
+    } catch (err) {
+        console.error("Channel creation failed:", err);
+    }
+});
+
+// ===== LOGIN =====
+client.login(process.env.DISCORD_TOKEN);
