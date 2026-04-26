@@ -1,11 +1,13 @@
 const { embed } = require("../utils/embed");
 const { generateChart } = require("../utils/chart");
 const { getUserStats, calculateRisk } = require("../services/intelEngine");
+const { auth } = require("../middleware/auth");
 
 module.exports = {
   name: "report",
 
   async execute(message) {
+    if (!auth("report")(message)) return;
 
     const user = message.mentions.users.first() || message.author;
 
