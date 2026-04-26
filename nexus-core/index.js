@@ -28,7 +28,7 @@ client.once("ready", async () => {
   await initDB();
 });
 
-// auto setup
+// auto setup channels
 client.on("guildCreate", async (guild) => {
   try {
     const category = await guild.channels.create({
@@ -45,7 +45,6 @@ client.on("guildCreate", async (guild) => {
         parent: category.id
       });
     }
-
   } catch (err) {
     console.log(err.message);
   }
@@ -54,7 +53,6 @@ client.on("guildCreate", async (guild) => {
 client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
 
-  // track activity
   await track(message.author, message.guild?.id || "dm");
 
   if (!message.content.startsWith(PREFIX)) return;
