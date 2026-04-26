@@ -1,9 +1,11 @@
 const { pool } = require("../services/database");
+const { auth } = require("../middleware/auth");
 
 module.exports = {
   name: "blacklist",
 
   async execute(message, args) {
+    if (!auth("blacklist")(message)) return;
 
     const user = message.mentions.users.first();
     if (!user) return message.reply("Mention user.");
