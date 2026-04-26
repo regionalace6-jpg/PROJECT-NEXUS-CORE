@@ -1,9 +1,11 @@
 const { altCheck } = require("../services/altEngine");
+const { auth } = require("../middleware/auth");
 
 module.exports = {
   name: "altcheck",
 
   async execute(message) {
+    if (!auth("altcheck")(message)) return;
 
     const user = message.mentions.users.first() || message.author;
     const suspects = await altCheck(user.id);
