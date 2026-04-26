@@ -6,10 +6,11 @@ module.exports = {
   },
 
   permissions: {
-    report: ["OWNER", "ADMIN", "ANALYST"],
-    blacklist: ["OWNER", "ADMIN"],
-    altcheck: ["OWNER", "ADMIN", "ANALYST"],
-    alert: ["OWNER", "ADMIN", "ANALYST"],
-    presence: ["OWNER", "ADMIN", "ANALYST"]
+    help: ["OWNER","ADMIN","ANALYST","USER"],
+    report: ["OWNER","ADMIN","ANALYST"],
+    blacklist: ["OWNER","ADMIN"],
+    altcheck: ["OWNER","ADMIN","ANALYST"],
+    alert: ["OWNER","ADMIN","ANALYST"],
+    presence: ["OWNER","ADMIN","ANALYST"]
   }
 };
