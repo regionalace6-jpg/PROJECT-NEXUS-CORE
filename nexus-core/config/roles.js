@@ -1,6 +1,6 @@
 module.exports = {
   roles: {
-    OWNER: ["YOUR_DISCORD_ID"],
+    OWNER: ["924501682619052042"],
     ADMIN: [],
     ANALYST: []
   },
