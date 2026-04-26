@@ -1,0 +1,14 @@
+{
+  "name": "nexus-core",
+  "version": "1.0.0",
+  "main": "nexus-core/index.js",
+  "scripts": {
+    "start": "node nexus-core/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "pg": "^8.11.3",
+    "quickchart-js": "^3.1.0",
+    "express": "^4.18.2"
+  }
+}
